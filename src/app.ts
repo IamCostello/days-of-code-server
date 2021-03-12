@@ -5,6 +5,7 @@ import cors from "cors";
 import authRoutes from "./api/routes/auth";
 import errorResponse from "./api/middleware/errorResponse";
 import verifyToken from "./api/middleware/verifyToken";
+import savedRoutes from "./api/routes/saved";
 
 const app = express();
 
@@ -12,7 +13,8 @@ app.use(express.json());
 app.use(cors());
 dotenv.config({ path: "src/config/.env" });
 
-app.use("/auth", [verifyToken], authRoutes);
+app.use("/auth", authRoutes);
+app.use("/saved", [verifyToken], savedRoutes);
 
 app.use(errorResponse);
 

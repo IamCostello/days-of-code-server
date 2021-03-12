@@ -1,6 +1,7 @@
 import { model, Schema, Document } from "mongoose";
 
 export type UserSaved = {
+  _id: string;
   url: string;
   archived: boolean;
 };

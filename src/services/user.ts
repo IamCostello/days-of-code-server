@@ -18,6 +18,7 @@ export const fetchUser = async (userId: string) => {
 export const verifyUser = async (userId: string) => {
   try {
     const user = await User.findOne({ userId });
+    console.log("verify: ", user?.userId);
     return user != undefined;
   } catch (error) {
     error.message = "Failed to verify user";
@@ -35,6 +36,7 @@ export const createUser = async (
       userId,
       username,
       email,
+      saved: [],
     });
 
     await user.save();
