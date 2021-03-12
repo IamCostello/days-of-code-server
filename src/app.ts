@@ -1,13 +1,20 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import cors from "cors";
+import authRoutes from "./api/routes/auth";
+import errorResponse from "./api/middleware/errorResponse";
+import verifyToken from "./api/middleware/verifyToken";
 
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 dotenv.config({ path: "src/config/.env" });
 
-app.get("/", (req, res) => res.send("Yo"));
+app.use("/auth", [verifyToken], authRoutes);
+
+app.use(errorResponse);
 
 mongoose
   .connect(process.env.CLUSTER_URI!, {
