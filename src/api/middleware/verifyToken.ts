@@ -13,6 +13,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
       throw new Error("User not verified");
     }
   } catch (error) {
+    error.statusCode = 401;
     next(error);
   }
 };
