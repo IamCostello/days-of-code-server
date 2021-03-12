@@ -4,10 +4,6 @@ import { createUser, verifyUser } from "../../services/user";
 
 const authRoutes = Router();
 
-authRoutes.get("/", async (req, res, next) => {
-  res.send(req.userId);
-});
-
 authRoutes.post("/signup", async (req, res, next) => {
   try {
     const { user_id, name, email } = await auth.verifyIdToken(
