@@ -47,3 +47,47 @@ export const createUser = async (
     throw error;
   }
 };
+
+export const fetchUserTags = async (userId: string) => {
+  try {
+    const userData = await User.findOne({ userId });
+
+    if (!userData) {
+      throw new Error("User not found");
+    }
+
+    return userData.tags;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const addUserTag = async (userId: string, userTag: string) => {
+  try {
+    await User.findOneAndUpdate(
+      { userId },
+      {
+        $push: { tags: userTag },
+      }
+    );
+    return userTag;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const removeUserTag = async (userId: string, userTag: string) => {
+  try {
+    await User.findOneAndUpdate(
+      { userId },
+      {
+        $pull: {
+          tags: userTag,
+        },
+      }
+    );
+    return userTag;
+  } catch (error) {
+    throw error;
+  }
+};

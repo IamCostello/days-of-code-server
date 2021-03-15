@@ -10,6 +10,7 @@ import cron from "node-cron";
 import nodemailer from "nodemailer";
 import { mailer, sendMail } from "./services/cronjobs";
 import user from "./models/user";
+import userRoutes from "./api/routes/user";
 
 const app = express();
 
@@ -30,7 +31,7 @@ export const transporter = nodemailer.createTransport({
 
 app.use("/auth", authRoutes);
 app.use("/saved", [verifyToken], savedRoutes);
-// app.use("/saved", savedRoutes);
+app.use("/tags", [verifyToken], userRoutes);
 
 app.use(errorResponse);
 

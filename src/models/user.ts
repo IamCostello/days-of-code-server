@@ -4,6 +4,7 @@ export type UserSaved = {
   _id: string;
   url: string;
   archived: boolean;
+  tag: string;
 };
 
 export interface IUser extends Document {
@@ -13,6 +14,7 @@ export interface IUser extends Document {
   photoURL: string;
   days: number;
   saved: UserSaved[];
+  tags: string[];
 }
 
 const userSchema = new Schema({
@@ -24,9 +26,11 @@ const userSchema = new Schema({
     {
       url: { type: String, required: true },
       archived: { type: Boolean, default: false },
+      tag: { type: String, default: "none" },
     },
     { timestamps: true },
   ],
+  tags: [String],
 });
 
 export default model<IUser>("User", userSchema);
