@@ -10,9 +10,18 @@ const savedRoutes = Router();
 
 savedRoutes.get("/", async (req, res, next) => {
   const userId = req.userId;
+  const page = req.query.page;
+  const limit = req.query.limit;
+  // const userId = req.body.userId;
+
+  console.log(page, limit, userId);
 
   try {
-    const savedArticles = await fetchArticles(userId);
+    const savedArticles = await fetchArticles(
+      userId,
+      Number(page),
+      Number(limit)
+    );
     res.send(savedArticles);
   } catch (error) {
     next(error);

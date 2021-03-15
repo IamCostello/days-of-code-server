@@ -1,11 +1,30 @@
 import User, { UserSaved } from "../models/user";
 
-export const fetchArticles = async (userId: string) => {
+export const fetchArticles = async (
+  userId: string,
+  page: number,
+  limit: number
+) => {
   try {
-    const userData = await User.findOne({ userId });
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
+    const userData = await User.findOne(
+      { userId },
+      { saved: { $slice: [startIndex, endIndex] } }
+    );
 
     if (userData) {
-      return userData.saved;
+      const next = userData.saved.length < limit ? page : page + 1;
+      const previous = page > 1 ? page - 1 : page;
+      const hasMore = endIndex < userData.days;
+
+      return {
+        results: userData.saved,
+        next,
+        previous,
+        hasMore,
+      };
     } else {
       throw new Error("User not found");
     }
