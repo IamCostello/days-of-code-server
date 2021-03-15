@@ -13,13 +13,15 @@ savedRoutes.get("/", async (req, res, next) => {
   const userId = req.userId;
   const page = req.query.page;
   const limit = req.query.limit;
+  const tag = req.query.tag;
   // const userId = req.body.userId;
 
   try {
     const savedArticles = await fetchArticles(
       userId,
       Number(page),
-      Number(limit)
+      Number(limit),
+      String(tag)
     );
     res.send(savedArticles);
   } catch (error) {
@@ -35,6 +37,7 @@ savedRoutes.post("/", async (req, res, next) => {
     await saveArticle(userId, articleUrl, articleTag);
     res.status(201).json({ articleUrl, articleTag });
   } catch (error) {
+    console.log(error);
     next(error);
   }
 });

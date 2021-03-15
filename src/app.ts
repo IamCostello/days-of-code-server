@@ -11,12 +11,15 @@ import nodemailer from "nodemailer";
 import { mailer, sendMail } from "./services/cronjobs";
 import user from "./models/user";
 import userRoutes from "./api/routes/user";
+import morgan from "morgan";
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 dotenv.config({ path: "src/config/.env" });
+
+app.use(morgan("tiny"));
 
 export const transporter = nodemailer.createTransport({
   service: "gmail",

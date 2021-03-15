@@ -1,11 +1,12 @@
 import { model, Schema, Document } from "mongoose";
+import { UserSaved } from "./saved";
 
-export type UserSaved = {
-  _id: string;
-  url: string;
-  archived: boolean;
-  tag: string;
-};
+// export type UserSaved = {
+//   _id: string;
+//   url: string;
+//   archived: boolean;
+//   tag: string;
+// };
 
 export interface IUser extends Document {
   userId: string;
@@ -22,14 +23,7 @@ const userSchema = new Schema({
   username: { type: String, required: true },
   email: { type: String, required: true },
   days: { type: Number, default: 0 },
-  saved: [
-    {
-      url: { type: String, required: true },
-      archived: { type: Boolean, default: false },
-      tag: { type: String, default: "none" },
-    },
-    { timestamps: true },
-  ],
+  saved: [{ type: Schema.Types.ObjectId, ref: "Saved" }],
   tags: [String],
 });
 

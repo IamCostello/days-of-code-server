@@ -1,23 +1,66 @@
-import User, { UserSaved } from "../models/user";
+import { Types } from "mongoose";
+import Saved from "../models/saved";
+import User from "../models/user";
 
 export const fetchArticles = async (
   userId: string,
   page: number,
-  limit: number
+  limit: number,
+  tag: string
 ) => {
   try {
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
 
-    const userData = await User.findOne(
-      { userId },
-      { saved: { $slice: [startIndex, limit] } }
-    );
+    let userData;
+    let nextUserData;
 
-    if (userData) {
+    console.log(tag);
+
+    if (tag === "") {
+      userData = await User.findOne({ userId }).populate({
+        path: "saved",
+        options: {
+          limit,
+          skip: startIndex,
+        },
+      });
+
+      nextUserData = await User.findOne({ userId }).populate({
+        path: "saved",
+        options: {
+          limit: 1,
+          skip: endIndex,
+        },
+      });
+    } else {
+      userData = await User.findOne({ userId }).populate({
+        path: "saved",
+        match: { tag: tag },
+        options: {
+          limit,
+          skip: startIndex,
+        },
+      });
+
+      nextUserData = await User.findOne({ userId }).populate({
+        path: "saved",
+        match: { tag: tag },
+        options: {
+          limit: 1,
+          skip: endIndex,
+        },
+      });
+    }
+
+    console.log(userData?.saved);
+    // console.log(nextUserData?.saved);
+
+    if (userData && nextUserData) {
       const next = userData.saved.length < limit ? page : page + 1;
       const previous = page > 1 ? page - 1 : page;
-      const hasMore = endIndex < userData.days - 1;
+      // const hasMore = endIndex < userData.days - 1;
+      const hasMore = nextUserData.saved.length > 0;
 
       return {
         results: userData.saved,
@@ -41,16 +84,26 @@ export const saveArticle = async (
   articleTag: string
 ) => {
   try {
-    const user = await User.findOneAndUpdate(
+    const userSaved = new Saved({
+      url: articleUrl,
+      tag: articleTag,
+      creator: userId,
+    });
+
+    console.log(userSaved);
+
+    await userSaved.save();
+
+    await User.findOneAndUpdate(
       { userId },
       {
-        $push: { saved: { url: articleUrl, tag: articleTag } as UserSaved },
+        $push: { saved: userSaved },
         $inc: { days: 1 },
       },
       { new: true, useFindAndModify: false }
     );
 
-    return { articleUrl, articleTag };
+    return userSaved;
   } catch (error) {
     error.message = "Failed to save article";
     throw error;
@@ -59,19 +112,23 @@ export const saveArticle = async (
 
 export const deleteArticle = async (userId: string, articleId: string) => {
   try {
-    console.log(articleId);
+    const userSaved = await Saved.findOne({ _id: articleId, creator: userId });
 
-    const user = await User.findOneAndUpdate(
+    if (!userSaved) {
+      throw new Error("Not authorized");
+    }
+
+    await userSaved.delete();
+
+    await User.findOneAndUpdate(
       { userId },
       {
-        $pull: { saved: { _id: articleId } },
+        $pull: { saved: articleId },
         $inc: { days: -1 },
       }
     );
 
-    console.log(user);
-
-    return articleId;
+    return userSaved;
   } catch (error) {
     error.message = "Failed to delete article";
     throw error;
@@ -84,47 +141,34 @@ export const renameArticle = async (
   newUrl: string
 ) => {
   try {
-    const user = await User.findOne({ userId });
+    const article = await Saved.findOneAndUpdate(
+      { _id: articleId, creator: userId },
+      { $set: { url: newUrl } }
+    );
 
-    if (!user) {
-      throw new Error("User not found");
-    }
-
-    user.saved.map((article) => {
-      if (article._id == articleId) {
-        article.url = newUrl;
-      }
-    });
-
-    await user.save();
-
-    return { url: newUrl };
+    return { article };
   } catch (error) {
-    error.message = "Failed to archive article";
+    error.message = "Failed to rename article";
     throw error;
   }
 };
 
 export const archiveArticle = async (userId: string, articleId: string) => {
   try {
-    const user = await User.findOne({ userId });
-
-    if (!user) {
-      throw new Error("User not found");
-    }
-
-    user.saved.map((article) => {
-      if (article._id == articleId) {
-        article.archived = true;
-      }
+    const article = await Saved.findOneAndUpdate({
+      _id: articleId,
+      creator: userId,
     });
 
-    console.log(articleId);
-    console.log(user.saved);
+    if (!article) {
+      throw new Error("Article not found");
+    }
 
-    await user.save();
+    article.archived = !article.archived;
 
-    return user;
+    await article.save();
+
+    return article;
   } catch (error) {
     error.message = "Failed to archive article";
     throw error;
