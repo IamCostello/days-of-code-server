@@ -14,8 +14,6 @@ savedRoutes.get("/", async (req, res, next) => {
   const limit = req.query.limit;
   // const userId = req.body.userId;
 
-  console.log(page, limit, userId);
-
   try {
     const savedArticles = await fetchArticles(
       userId,

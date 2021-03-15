@@ -11,13 +11,16 @@ export const fetchArticles = async (
 
     const userData = await User.findOne(
       { userId },
-      { saved: { $slice: [startIndex, endIndex] } }
+      { saved: { $slice: [startIndex, limit] } }
     );
+
+    console.log(startIndex, endIndex);
+    console.log(userData?.saved);
 
     if (userData) {
       const next = userData.saved.length < limit ? page : page + 1;
       const previous = page > 1 ? page - 1 : page;
-      const hasMore = endIndex < userData.days;
+      const hasMore = endIndex < userData.days - 1;
 
       return {
         results: userData.saved,
@@ -40,6 +43,7 @@ export const saveArticle = async (userId: string, articleUrl: string) => {
       { userId },
       {
         $push: { saved: { url: articleUrl } as UserSaved },
+        $inc: { days: 1 },
       },
       { new: true, useFindAndModify: false }
     );
@@ -57,6 +61,7 @@ export const deleteArticle = async (userId: string, articleId: string) => {
       { userId },
       {
         $pull: { saved: { _id: articleId } },
+        $dec: { days: 1 },
       }
     );
 
