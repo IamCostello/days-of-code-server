@@ -1,5 +1,6 @@
 import { transporter } from "../app";
 import user from "../models/user";
+import { deleteArticle } from "./saved";
 
 export const sendMail = (userEmail: string, articleUrl: string) => {
   transporter.sendMail(
@@ -26,12 +27,20 @@ export const mailer = async () => {
     user != null;
     user = await cursor.next()
   ) {
-    const saved = user.saved.filter((article) => article.archived === false);
+    await user
+      .populate({
+        path: "saved",
+        options: { limit: 1, skip: Math.floor(Math.random() * user.days) },
+      })
+      .execPopulate();
 
-    if (saved.length > 0) {
-      const article = saved[Math.floor(Math.random() * saved.length)];
+    if (user.saved.length > 0 && user.active) {
+      const article = user.saved[0];
       sendMail(user.email, article.url);
-      article.archived = true;
+
+      console.log("Sending email to: ", user.email);
+      await deleteArticle(user.userId, article.id);
+
       user.save();
     }
   }

@@ -1,10 +1,5 @@
 import { Router } from "express";
-import {
-  addUserTag,
-  fetchUser,
-  fetchUserTags,
-  removeUserTag,
-} from "../../services/user";
+import { addUserTag, fetchUserTags, removeUserTag } from "../../services/user";
 
 const userRoutes = Router();
 

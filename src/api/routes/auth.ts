@@ -10,8 +10,6 @@ authRoutes.post("/signup", async (req, res, next) => {
       req.headers.authtoken as string
     );
 
-    console.log(user_id, name, email);
-
     if (!(await verifyUser(user_id))) {
       const user = await createUser(user_id, name, email!);
       res.status(201).json({ message: "New user created", user });

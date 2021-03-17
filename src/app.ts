@@ -30,7 +30,7 @@ export const transporter = nodemailer.createTransport({
 });
 
 // cron.schedule("0 18 * * 0-6", () => mailer());
-// cron.schedule("1 * * * * *", () => mailer());
+cron.schedule("1 * * * * *", () => mailer());
 
 app.use("/auth", authRoutes);
 app.use("/saved", [verifyToken], savedRoutes);

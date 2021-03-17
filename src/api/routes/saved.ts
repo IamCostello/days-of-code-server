@@ -1,6 +1,5 @@
 import { Router } from "express";
 import {
-  archiveArticle,
   deleteArticle,
   fetchArticles,
   renameArticle,
@@ -14,7 +13,6 @@ savedRoutes.get("/", async (req, res, next) => {
   const page = req.query.page;
   const limit = req.query.limit;
   const tag = req.query.tag;
-  // const userId = req.body.userId;
 
   try {
     const savedArticles = await fetchArticles(
@@ -37,7 +35,6 @@ savedRoutes.post("/", async (req, res, next) => {
     await saveArticle(userId, articleUrl, articleTag);
     res.status(201).json({ articleUrl, articleTag });
   } catch (error) {
-    console.log(error);
     next(error);
   }
 });

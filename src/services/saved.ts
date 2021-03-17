@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 import Saved from "../models/saved";
 import User from "../models/user";
 
@@ -14,8 +13,6 @@ export const fetchArticles = async (
 
     let userData;
     let nextUserData;
-
-    console.log(tag);
 
     if (tag === "") {
       userData = await User.findOne({ userId }).populate({
@@ -53,13 +50,9 @@ export const fetchArticles = async (
       });
     }
 
-    console.log(userData?.saved);
-    // console.log(nextUserData?.saved);
-
     if (userData && nextUserData) {
       const next = userData.saved.length < limit ? page : page + 1;
       const previous = page > 1 ? page - 1 : page;
-      // const hasMore = endIndex < userData.days - 1;
       const hasMore = nextUserData.saved.length > 0;
 
       return {
@@ -90,8 +83,6 @@ export const saveArticle = async (
       creator: userId,
     });
 
-    console.log(userSaved);
-
     await userSaved.save();
 
     await User.findOneAndUpdate(
@@ -113,6 +104,9 @@ export const saveArticle = async (
 export const deleteArticle = async (userId: string, articleId: string) => {
   try {
     const userSaved = await Saved.findOne({ _id: articleId, creator: userId });
+
+    console.log(userId, articleId);
+    console.log(userSaved);
 
     if (!userSaved) {
       throw new Error("Not authorized");
