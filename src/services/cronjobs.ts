@@ -38,7 +38,6 @@ export const mailer = async () => {
       const article = user.saved[0];
       sendMail(user.email, article.url);
 
-      console.log("Sending email to: ", user.email);
       await deleteArticle(user.userId, article.id);
 
       user.save();

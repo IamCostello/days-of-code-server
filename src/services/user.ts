@@ -90,3 +90,22 @@ export const removeUserTag = async (userId: string, userTag: string) => {
     throw error;
   }
 };
+
+export const toggleActiveState = async (userId: string) => {
+  try {
+    const user = await User.findOne({ userId });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const activeState = !user.active;
+    user.active = activeState;
+
+    await user.save();
+
+    return { activeState };
+  } catch (error) {
+    throw error;
+  }
+};
